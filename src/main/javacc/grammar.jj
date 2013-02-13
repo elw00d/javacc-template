@@ -1,0 +1,51 @@
+options {
+    STATIC=false;
+    UNICODE_INPUT=true;
+}
+
+PARSER_BEGIN(Parser)
+package su.elwood;
+
+public final class Parser extends ParserBase {
+}
+
+PARSER_END(Parser)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+SPECIAL_TOKEN : /* COMMENTS */
+{
+  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+| <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+}
+
+
+TOKEN :
+{
+    < TEXT: "text" >
+
+
+    | < IDENTIFIER: <LETTER> ( <LETTER>|<DIGIT> )* >
+    | < NUMBER_LITERAL: (<DIGIT>)+(".")?|(<DIGIT>)*"."(<DIGIT>)+ >
+    | < STRING_LITERAL: "\"" (~["\"","\\","\n","\r"] | "\\" (["n","t","b","r","f","\\","\'","\""] | ["0"-"7"] (["0"-"7"])? | ["0"-"3"] ["0"-"7"] ["0"-"7"]))* "\"" >
+
+    |
+        < #LETTER: [ "_", "a"-"z", "A"-"Z", "а"-"я", "А"-"Я" ] >
+    |
+        < #DIGIT: [ "0"-"9"] >
+}
+
+public void parse() :
+{
+    Token str;
+}
+{
+ (<TEXT> str=<STRING_LITERAL> { System.out.println("text = " + str.image); } ) * <EOF>
+}
+
